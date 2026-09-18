@@ -24,5 +24,5 @@ jobs:
           cd "$dir"
           curl -fsSL "https://github.com/actions/runner/releases/download/v${version}/actions-runner-linux-x64-${version}.tar.gz" -o runner.tgz
           tar -xzf runner.tgz
-          ./config.sh --url "https://github.com/arbmsistone-lab/ARBM-one" --token "$RUNNER_TOKEN" --name "ARBM-ONE-GITHUB-PUBLIC-PR402" --labels "github-public-zero-spend,arbm-one-pr402" --unattended --ephemeral --replace
+          ./config.sh --url "https://github.com/arbmsistone-lab/ARBM-one" --token "$RUNNER_TOKEN" --name "ARBM-ONE-GITHUB-PUBLIC-${{ github.run_id }}" --labels "github-public-zero-spend,arbm-one-pr402" --unattended --ephemeral --replace
           ./run.sh
