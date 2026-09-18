@@ -1,0 +1,28 @@
+name: ARBM Private Runner Bridge
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Register ephemeral runner for ARBM ONE
+        shell: bash
+        env:
+          RUNNER_TOKEN: ${{ secrets.ARBM_RUNNER_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$RUNNER_TOKEN"
+          version="2.337.0"
+          dir="$RUNNER_TEMP/actions-runner"
+          mkdir -p "$dir"
+          cd "$dir"
+          curl -fsSL "https://github.com/actions/runner/releases/download/v${version}/actions-runner-linux-x64-${version}.tar.gz" -o runner.tgz
+          tar -xzf runner.tgz
+          ./config.sh --url "https://github.com/arbmsistone-lab/ARBM-one" --token "$RUNNER_TOKEN" --name "ARBM-ONE-GITHUB-PUBLIC-PR402" --labels "github-public-zero-spend,arbm-one-pr402" --unattended --ephemeral --replace
+          ./run.sh
