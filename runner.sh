@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+if [[ "${RUNNER_MODE:-}" == "render-provider-probe" ]]; then
+  for v in ARBM_RENDER_CI_HMAC_V1 ARBM_RENDER_CI_TOKEN ARBM_CI_SOURCE_TOKEN ARBM_TARGET_SHA; do
+    if [[ -n "${!v:-}" ]]; then
+      echo "$v=PRESENT"
+    else
+      echo "$v=ABSENT"
+    fi
+  done
+  exec node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('render-provider-probe-ready')}).listen(Number(process.env.PORT||10000),'0.0.0.0')"
+fi
+
 : "${RUNNER_TOKEN:?RUNNER_TOKEN is required}"
 RUNNER_NAME="${RUNNER_NAME:-ARBM-ONE-REMOTE-CANARY}"
 RUNNER_LABELS="${RUNNER_LABELS:-remote-zero-spend,arbm-one-pr402}"
