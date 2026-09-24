@@ -2,7 +2,7 @@ FROM node:24-bookworm-slim
 
 ARG RUNNER_VERSION=2.337.0
 RUN apt-get update \
- && apt-get install -y --no-install-recommends curl git gh ca-certificates libicu72 libssl3 jq bash unzip chromium gnupg \
+ && apt-get install -y --no-install-recommends curl git gh ca-certificates libicu72 libssl3 jq bash unzip chromium gnupg python3 \
  && rm -rf /var/lib/apt/lists/* \
  && useradd -m -u 1001 runner \
  && mkdir -p /home/runner/actions-runner \
