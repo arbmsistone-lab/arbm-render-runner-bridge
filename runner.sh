@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+MODE="${ARBM_RUNNER_MODE:-github}"
+
+if [[ "$MODE" == "gitlab" ]]; then
+  : "${RUNNER_TOKEN:?RUNNER_TOKEN is required}"
+  RUNNER_NAME="${RUNNER_NAME:-ARBM GitLab ZERO_SPEND exactsha}"
+  GLR="/tmp/gitlab-runner"
+  if [[ ! -x "$GLR" ]]; then
+    curl -fsSL -o "$GLR" https://s3.dualstack.us-east-1.amazonaws.com/gitlab-runner-downloads/latest/binaries/gitlab-runner-linux-amd64
+    chmod +x "$GLR"
+  fi
+  mkdir -p /tmp/gitlab-runner-work
+  "$GLR" register --non-interactive     --url https://gitlab.com     --token "$RUNNER_TOKEN"     --executor shell     --description "$RUNNER_NAME"
+  cfg="$HOME/.gitlab-runner/config.toml"
+  sed -i 's/^concurrent = .*/concurrent = 1/' "$cfg"
+  exec "$GLR" run --working-directory=/tmp/gitlab-runner-work
+fi
+
 : "${RUNNER_TOKEN:?RUNNER_TOKEN is required}"
 RUNNER_NAME="${RUNNER_NAME:-ARBM-ONE-REMOTE-CANARY}"
 RUNNER_LABELS="${RUNNER_LABELS:-remote-zero-spend,arbm-one-pr402}"
