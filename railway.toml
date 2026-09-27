@@ -1,0 +1,8 @@
+﻿[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "/home/runner/runner.sh"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
