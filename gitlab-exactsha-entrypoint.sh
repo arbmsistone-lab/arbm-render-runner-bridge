@@ -2,7 +2,8 @@
 set -euo pipefail
 
 : "${ARBM_EPHEMERAL_TRIGGER:?ARBM_EPHEMERAL_TRIGGER is required}"
-RUNNER_AUTH="${ARBM_RUNNER_ALIAS:-${GITLAB_RUNNER_TOKEN:-}}"`n: "${RUNNER_AUTH:?GitLab runner token is required}"
+RUNNER_AUTH="${ARBM_RUNNER_ALIAS:-${GITLAB_RUNNER_TOKEN:-}}"
+: "${RUNNER_AUTH:?GitLab runner token is required}"
 
 TARGET_SHA="${ARBM_TARGET_SHA:-8c079f0753de1b1a7b80c9f1696cf165ee7ca63c}"
 PROJECT_ID="86495927"
