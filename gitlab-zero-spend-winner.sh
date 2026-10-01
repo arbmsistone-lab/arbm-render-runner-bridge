@@ -5,7 +5,7 @@ set -euo pipefail
 : "${GITLAB_TRIGGER_TOKEN:?GITLAB_TRIGGER_TOKEN is required}"
 TARGET_SHA="${ARBM_TARGET_SHA:-8c079f0753de1b1a7b80c9f1696cf165ee7ca63c}"
 PROJECT_ID="86495927"
-TARGET_REF="ci/canonical-8c079f-auto"
+TARGET_REF="${ARBM_TARGET_REF:-ci/canonical-8c079f-auto}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update >/dev/null
