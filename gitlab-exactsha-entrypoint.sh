@@ -4,7 +4,7 @@ set -euo pipefail
 : "${ARBM_EPHEMERAL_TRIGGER:?ARBM_EPHEMERAL_TRIGGER is required}"
 : "${ARBM_RUNNER_ALIAS:?ARBM_RUNNER_ALIAS is required}"
 
-TARGET_SHA="8c079f0753de1b1a7b80c9f1696cf165ee7ca63c"
+TARGET_SHA="${ARBM_TARGET_SHA:-8c079f0753de1b1a7b80c9f1696cf165ee7ca63c}"
 PROJECT_ID="86495927"
 
 tmp_pipeline="$(mktemp)"
