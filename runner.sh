@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 if [[ "${RUNNER_MODE:-}" == "render-sovereign-witness" ]]; then
@@ -34,7 +34,7 @@ PY
   exec node -e 'const fs=require("fs"),http=require("http");const body=fs.readFileSync("/tmp/render-sovereign-witness.json");http.createServer((req,res)=>{res.statusCode=200;res.setHeader("content-type","application/json");res.end(body)}).listen(Number(process.env.PORT||10000),"0.0.0.0")'
 fi
 if [[ "${RUNNER_MODE:-}" == "render-provider-probe" ]]; then
-  for v in ARBM_RENDER_CI_HMAC_V1 ARBM_RENDER_CI_TOKEN ARBM_CI_SOURCE_TOKEN ARBM_TARGET_SHA; do
+  for v in ARBM_RENDER_CI_HMAC_V1 ARBM_RENDER_CI_TOKEN ARBM_CI_SOURCE_TOKEN ARBM_RENDER_CI_ED25519_PRIVATE_KEY_B64 ARBM_TARGET_SHA; do
     if [[ -n "${!v:-}" ]]; then
       echo "$v=PRESENT"
     else
