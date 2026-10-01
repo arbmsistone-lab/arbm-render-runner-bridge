@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 if [[ "${RUNNER_MODE:-}" == "render-sovereign-witness" ]]; then
