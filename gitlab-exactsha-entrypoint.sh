@@ -2,7 +2,7 @@
 set -euo pipefail
 
 : "${ARBM_EPHEMERAL_TRIGGER:?ARBM_EPHEMERAL_TRIGGER is required}"
-: "${ARBM_RUNNER_ALIAS:?ARBM_RUNNER_ALIAS is required}"
+RUNNER_AUTH="${ARBM_RUNNER_ALIAS:-${GITLAB_RUNNER_TOKEN:-}}"`n: "${RUNNER_AUTH:?GitLab runner token is required}"
 
 TARGET_SHA="${ARBM_TARGET_SHA:-8c079f0753de1b1a7b80c9f1696cf165ee7ca63c}"
 PROJECT_ID="86495927"
@@ -38,7 +38,7 @@ mkdir -p /tmp/gitlab-runner-work
 /tmp/gitlab-runner register \
   --non-interactive \
   --url https://gitlab.com \
-  --token "$ARBM_RUNNER_ALIAS" \
+  --token "$RUNNER_AUTH" \
   --executor shell \
   --description "ARBM GitLab ZERO_SPEND main exactsha"
 
