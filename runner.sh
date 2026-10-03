@@ -16,41 +16,35 @@ if [[ "${RUNNER_MODE:-}" == "render-sovereign-witness" ]]; then
   python3 scripts/sovereign_runtime/promotion_gate.py
   python3 - "$ARBM_TARGET_SHA" > /tmp/render-sovereign-witness.json <<'PY'
 import hashlib,json,sys
-d={
-  "schema_version":1,
-  "provider":"render",
-  "failure_domain":"render",
-  "candidate_sha":sys.argv[1],
-  "result":"PASS",
-  "independent_failure_domain":True,
-  "cost_class":"free",
-  "tests":["resilience_model","chaos_gate","promotion_gate"]
-}
-raw=json.dumps(d,sort_keys=True,separators=(",",":")).encode()
-d["sha256"]=hashlib.sha256(raw).hexdigest()
-print(json.dumps(d,sort_keys=True))
+d={"schema_version":1,"provider":"render","failure_domain":"render","candidate_sha":sys.argv[1],"result":"PASS","independent_failure_domain":True,"cost_class":"free","tests":["resilience_model","chaos_gate","promotion_gate"]}
+raw=json.dumps(d,sort_keys=True,separators=(",",":")).encode(); d["sha256"]=hashlib.sha256(raw).hexdigest(); print(json.dumps(d,sort_keys=True))
 PY
   echo "RENDER_SOVEREIGN_RUNTIME_WITNESS=PASS"
   exec node -e 'const fs=require("fs"),http=require("http");const body=fs.readFileSync("/tmp/render-sovereign-witness.json");http.createServer((req,res)=>{res.statusCode=200;res.setHeader("content-type","application/json");res.end(body)}).listen(Number(process.env.PORT||10000),"0.0.0.0")'
 fi
 if [[ "${RUNNER_MODE:-}" == "render-provider-probe" ]]; then
   for v in ARBM_RENDER_CI_HMAC_V1 ARBM_RENDER_CI_TOKEN ARBM_CI_SOURCE_TOKEN ARBM_RENDER_CI_ED25519_PRIVATE_KEY_B64 ARBM_TARGET_SHA; do
-    if [[ -n "${!v:-}" ]]; then
-      echo "$v=PRESENT"
-    else
-      echo "$v=ABSENT"
-    fi
+    if [[ -n "${!v:-}" ]]; then echo "$v=PRESENT"; else echo "$v=ABSENT"; fi
   done
   exec node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('render-provider-probe-ready')}).listen(Number(process.env.PORT||10000),'0.0.0.0')"
 fi
 
-: "${RUNNER_TOKEN:?RUNNER_TOKEN is required}"
 RUNNER_NAME="${RUNNER_NAME:-ARBM-ONE-REMOTE-CANARY}"
 RUNNER_LABELS="${RUNNER_LABELS:-remote-zero-spend,arbm-one-pr402}"
 RUNNER_REPO_URL="${RUNNER_REPO_URL:-https://github.com/arbmsistone-lab/ARBM-one}"
+
+registration_token=""
+if [[ -n "${RUNNER_AUTH:-}" ]]; then
+  repo_path="${RUNNER_REPO_URL#https://github.com/}"
+  repo_path="${repo_path%.git}"
+  registration_token="$(curl -fsS -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${RUNNER_AUTH}" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/${repo_path}/actions/runners/registration-token" | jq -r '.token // empty')"
+fi
+if [[ -z "$registration_token" ]]; then registration_token="${RUNNER_TOKEN:-}"; fi
+: "${registration_token:?A valid dynamic RUNNER_AUTH or RUNNER_TOKEN is required}"
+
 cd /home/runner/actions-runner
-cleanup(){ ./config.sh remove --token "$RUNNER_TOKEN" >/dev/null 2>&1 || true; }
+cleanup(){ ./config.sh remove --token "$registration_token" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('runner-ready')}).listen(Number(process.env.PORT||10000),'0.0.0.0')" &
-./config.sh --url "$RUNNER_REPO_URL" --token "$RUNNER_TOKEN" --name "$RUNNER_NAME" --labels "$RUNNER_LABELS" --unattended --ephemeral --replace
+./config.sh --url "$RUNNER_REPO_URL" --token "$registration_token" --name "$RUNNER_NAME" --labels "$RUNNER_LABELS" --unattended --ephemeral --replace
 exec ./run.sh
